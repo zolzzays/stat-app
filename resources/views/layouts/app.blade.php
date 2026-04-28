@@ -173,7 +173,8 @@
                 <div class="sidebar-brand-text">Үндсэн цэс</div>
             </div>
 
-            <a href="{{ route('dashboard') }}"> Хянах самбар</a>
+            <a href="{{ route('dashboard') }}">🏠 Хянах самбар</a>
+            <a href="{{ route('profile.edit') }}">👤 Миний мэдээлэл</a>
 
             <div class="section-title">Мэдээ</div>
             <a href="{{ route('plant_output.index') }}">⚡ Үйлдвэрлэлийн мэдээ</a>

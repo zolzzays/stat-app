@@ -129,6 +129,8 @@ class UserController extends Controller
             'email'    => $request->email,
             'role_id'  => $request->role_id,
             'org_id'   => $request->org_id,
+            'position' => $request->position,
+            'phone'    => $request->phone,
         ];
 
         if ($request->filled('password')) {

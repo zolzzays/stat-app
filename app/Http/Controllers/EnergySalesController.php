@@ -14,21 +14,23 @@ class EnergySalesController extends Controller
 {
     public function index(Request $request)
     {
-        $user      = Auth::user();
-        $year      = $request->input('year');
-        $month     = $request->input('month');
-        $regTypeId = $request->input('reg_type_id');
+        $user        = Auth::user();
+        $year        = $request->input('year');
+        $month       = $request->input('month');
+        $regTypeId   = $request->input('reg_type_id');
+        $productType = $request->input('product_type');
 
         $query = EnergySale::with(['powerPlant.regType', 'organization']);
 
-        if ($user->role?->name !== 'admin' && $user->org_id) {
+        if ($user?->role?->name !== 'admin' && $user?->org_id) {
             $query->whereHas('powerPlant', fn($q) => $q->where('org_id', $user->org_id));
         }
         if ($regTypeId) {
             $query->whereHas('powerPlant', fn($q) => $q->where('reg_type_id', $regTypeId));
         }
-        if ($year)  $query->where('year', $year);
-        if ($month) $query->where('month', $month);
+        if ($year)        $query->where('year', $year);
+        if ($month)       $query->where('month', $month);
+        if ($productType) $query->where('product_name', 'like', '%' . $productType . '%');
 
         if ($request->input('export') === 'excel') {
             $filename = 'energy_sales_' . ($year ?: 'all') . '_' . ($month ?: 'all') . '.xlsx';
@@ -40,7 +42,7 @@ class EnergySalesController extends Controller
 
         $regTypes = RegType::orderBy('type_name')->get();
         $sales    = $query->get();
-        return view('energy_sales.index', compact('sales', 'year', 'month', 'regTypes', 'regTypeId'));
+        return view('energy_sales.index', compact('sales', 'year', 'month', 'regTypes', 'regTypeId', 'productType'));
     }
 
     public function create()

@@ -49,13 +49,16 @@
 
                 <div class="col-md-3">
                     <label class="form-label">Бүтээгдэхүүний нэр <span class="text-danger">*</span></label>
-                    <input type="text" class="form-control" name="product_name"
-                           value="{{ old('product_name', $energy_sale->product_name) }}" required>
+                    <select class="form-select" name="product_name" id="product_name" required>
+                        <option value="">-- Сонгоно уу --</option>
+                        <option value="Цахилгаан" {{ old('product_name', $energy_sale->product_name) === 'Цахилгаан' ? 'selected' : '' }}>Цахилгаан</option>
+                        <option value="Дулаан"    {{ old('product_name', $energy_sale->product_name) === 'Дулаан'    ? 'selected' : '' }}>Дулаан</option>
+                    </select>
                 </div>
 
                 <div class="col-md-1">
                     <label class="form-label">Нэгж <span class="text-danger">*</span></label>
-                    <input type="text" class="form-control" name="unit_name"
+                    <input type="text" class="form-control" name="unit_name" id="unit_name"
                            value="{{ old('unit_name', $energy_sale->unit_name) }}" required>
                 </div>
 
@@ -165,6 +168,15 @@
 
 @push('scripts')
 <script>
+const unitMap = { 'Цахилгаан': 'мян.кВт.цаг', 'Дулаан': 'мян.Гкал' };
+const productSel = document.getElementById('product_name');
+const unitInput  = document.getElementById('unit_name');
+
+productSel.addEventListener('change', function () {
+    const unit = unitMap[this.value];
+    if (unit) unitInput.value = unit;
+});
+
 document.querySelectorAll('.decimal-input').forEach(function (input) {
     if (input.value !== '') input.value = parseFloat(input.value).toFixed(2);
     input.addEventListener('blur', function () {

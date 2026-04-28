@@ -14,10 +14,11 @@ class PlantOutputController extends Controller
 {
     public function index(Request $request)
     {
-        $user       = Auth::user();
-        $year       = $request->input('year');
-        $month      = $request->input('month');
-        $regTypeId  = $request->input('reg_type_id');
+        $user        = Auth::user();
+        $year        = $request->input('year');
+        $month       = $request->input('month');
+        $regTypeId   = $request->input('reg_type_id');
+        $productType = $request->input('product_type');
 
         $query = PlantOutput::with(['powerPlant.regType', 'organization']);
 
@@ -27,8 +28,9 @@ class PlantOutputController extends Controller
         if ($regTypeId) {
             $query->whereHas('powerPlant', fn($q) => $q->where('reg_type_id', $regTypeId));
         }
-        if ($year)  $query->where('year', $year);
-        if ($month) $query->where('month', $month);
+        if ($year)        $query->where('year', $year);
+        if ($month)       $query->where('month', $month);
+        if ($productType) $query->where('product_name', 'like', '%' . $productType . '%');
 
         if ($request->input('export') === 'excel') {
             $filename = 'plant_output_' . ($year ?: 'all') . '_' . ($month ?: 'all') . '.xlsx';
@@ -40,7 +42,7 @@ class PlantOutputController extends Controller
 
         $regTypes = RegType::orderBy('type_name')->get();
         $outputs  = $query->get();
-        return view('plant_output.index', compact('outputs', 'year', 'month', 'regTypes', 'regTypeId'));
+        return view('plant_output.index', compact('outputs', 'year', 'month', 'regTypes', 'regTypeId', 'productType'));
     }
 
     public function create()

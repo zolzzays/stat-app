@@ -25,6 +25,8 @@ class User extends Authenticatable
         'role_id',
         'power_plant_id',
         'org_id',
+        'position',
+        'phone',
     ];
 
     /**

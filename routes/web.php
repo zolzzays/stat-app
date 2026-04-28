@@ -9,6 +9,7 @@ use App\Http\Controllers\EnergySalesController;
 use App\Http\Controllers\OrganizationController;
 use App\Http\Controllers\HrCountController;
 use App\Http\Controllers\Admin\UserController;
+use App\Http\Controllers\ProfileController;
 
 Route::middleware('web')->group(function () {
 
@@ -23,6 +24,13 @@ Route::middleware('web')->group(function () {
 
     // Dashboard (auth middleware)
     Route::get('/dashboard', [AuthController::class, 'dashboard'])->middleware('auth')->name('dashboard');
+
+    // Profile
+    Route::middleware('auth')->group(function () {
+        Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
+        Route::post('/profile', [ProfileController::class, 'update'])->name('profile.update');
+        Route::post('/profile/password', [ProfileController::class, 'updatePassword'])->name('profile.password');
+    });
 
     // Logout
     Route::match(['get', 'post'], '/logout', [AuthController::class, 'logout'])->name('logout');

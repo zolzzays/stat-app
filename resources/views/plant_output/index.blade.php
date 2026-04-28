@@ -11,7 +11,15 @@
     @endif
 </div>
 
-@include('partials.filter_bar', ['action' => route('plant_output.index'), 'year' => $year, 'month' => $month, 'regTypes' => $regTypes, 'regTypeId' => $regTypeId])
+@include('partials.filter_bar', [
+    'action'            => route('plant_output.index'),
+    'year'              => $year,
+    'month'             => $month,
+    'regTypes'          => $regTypes,
+    'regTypeId'         => $regTypeId,
+    'showProductFilter' => true,
+    'productType'       => $productType,
+])
 
 <div class="table-responsive">
     <table class="table table-bordered table-hover align-middle text-center mb-0" style="font-size: 0.875rem;">

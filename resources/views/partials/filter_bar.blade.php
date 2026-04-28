@@ -26,6 +26,16 @@
         </select>
     </div>
     @endif
+    @if(isset($showProductFilter) && $showProductFilter)
+    <div class="col-auto">
+        <label class="form-label mb-1 small">Бүтээгдэхүүн</label>
+        <select name="product_type" class="form-select form-select-sm" style="width:140px">
+            <option value="">Бүгд</option>
+            <option value="Цахилгаан" {{ ($productType ?? '') === 'Цахилгаан' ? 'selected' : '' }}>⚡ Цахилгаан</option>
+            <option value="Дулаан"    {{ ($productType ?? '') === 'Дулаан'    ? 'selected' : '' }}>🔥 Дулаан</option>
+        </select>
+    </div>
+    @endif
     <div class="col-auto">
         <button type="submit" class="btn btn-primary btn-sm">Шүүх</button>
         <a href="{{ $action }}" class="btn btn-outline-secondary btn-sm">Цэвэрлэх</a>

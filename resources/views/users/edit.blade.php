@@ -48,8 +48,18 @@
             </div>
 
             <div class="mb-3">
+                <label>Албан тушаал</label>
+                <input type="text" name="position" value="{{ old('position', $user->position) }}" class="form-control" placeholder="Жишээ: Инженер">
+            </div>
+
+            <div class="mb-3">
+                <label>Утасны дугаар</label>
+                <input type="text" name="phone" value="{{ old('phone', $user->phone) }}" class="form-control" placeholder="99xxxxxx">
+            </div>
+
+            <div class="mb-3">
                 <label>Харьяа байгууллага</label>
-<select name="org_id" class="form-select">
+                <select name="org_id" class="form-select">
                     <option value="">-- Сонгох --</option>
                     @foreach($orgs as $org)
                         <option value="{{ $org->id }}"
@@ -59,6 +69,7 @@
                     @endforeach
                 </select>
             </div>
+
 
             <div class="mb-3">
                 <label>Эрх (Role)</label>
