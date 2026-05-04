@@ -15,8 +15,6 @@
     'action'            => route('energy_sales.index'),
     'year'              => $year,
     'month'             => $month,
-    'regTypes'          => $regTypes,
-    'regTypeId'         => $regTypeId,
     'showProductFilter' => true,
     'productType'       => $productType,
 ])
@@ -28,7 +26,6 @@
                 <th rowspan="3" class="align-middle">#</th>
                 <th rowspan="3" class="align-middle">Байгууллага</th>
                 <th rowspan="3" class="align-middle">Станц</th>
-                <th rowspan="3" class="align-middle">Бүртгэлийн төрөл</th>
                 <th rowspan="3" class="align-middle">Бүтээгдэхүүн</th>
                 <th rowspan="3" class="align-middle">Нэгж</th>
                 <th colspan="2" class="text-center table-info">Өмнөх сар</th>
@@ -54,7 +51,6 @@
                 <td class="text-muted">{{ $i + 1 }}</td>
                 <td class="text-start">{{ $sale->organization?->org_name ?? '—' }}</td>
                 <td class="text-start fw-semibold">{{ $sale->powerPlant->plant_name }}</td>
-                <td class="text-start">{{ $sale->powerPlant->regType?->type_name ?? '—' }}</td>
                 <td class="text-start">{{ $sale->product_name }}</td>
                 <td>{{ $sale->unit_name }}</td>
                 <td>{{ number_format($sale->before_month, 2) }}</td>
@@ -83,14 +79,14 @@
             </tr>
             @empty
             <tr>
-                <td colspan="14" class="text-center text-muted py-4">Мэдээлэл байхгүй байна.</td>
+                <td colspan="13" class="text-center text-muted py-4">Мэдээлэл байхгүй байна.</td>
             </tr>
             @endforelse
         </tbody>
         @if($sales->count() > 0)
         <tfoot class="table-light fw-semibold">
             <tr>
-                <td colspan="6" class="text-end">Нийт дүн:</td>
+                <td colspan="5" class="text-end">Нийт дүн:</td>
                 <td>{{ number_format($sales->sum('before_month'), 2) }}</td>
                 <td>{{ number_format($sales->sum('before_sal'), 2) }}</td>
                 <td>{{ number_format($sales->sum('this_month'), 2) }}</td>

@@ -4,7 +4,6 @@ namespace App\Http\Controllers;
 
 use App\Models\EnergySale;
 use App\Models\PowerPlant;
-use App\Models\RegType;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use App\Exports\EnergySalesExport;
@@ -17,16 +16,12 @@ class EnergySalesController extends Controller
         $user        = Auth::user();
         $year        = $request->input('year');
         $month       = $request->input('month');
-        $regTypeId   = $request->input('reg_type_id');
         $productType = $request->input('product_type');
 
-        $query = EnergySale::with(['powerPlant.regType', 'organization']);
+        $query = EnergySale::with(['powerPlant', 'organization']);
 
         if ($user?->role?->name !== 'admin' && $user?->org_id) {
             $query->whereHas('powerPlant', fn($q) => $q->where('org_id', $user->org_id));
-        }
-        if ($regTypeId) {
-            $query->whereHas('powerPlant', fn($q) => $q->where('reg_type_id', $regTypeId));
         }
         if ($year)        $query->where('year', $year);
         if ($month)       $query->where('month', $month);
@@ -35,14 +30,13 @@ class EnergySalesController extends Controller
         if ($request->input('export') === 'excel') {
             $filename = 'energy_sales_' . ($year ?: 'all') . '_' . ($month ?: 'all') . '.xlsx';
             return Excel::download(
-                new EnergySalesExport($year, $month, $user->role?->name !== 'admin' ? $user->org_id : null),
+                new EnergySalesExport($year, $month, $user?->role?->name !== 'admin' ? $user?->org_id : null),
                 $filename
             );
         }
 
-        $regTypes = RegType::orderBy('type_name')->get();
-        $sales    = $query->get();
-        return view('energy_sales.index', compact('sales', 'year', 'month', 'regTypes', 'regTypeId', 'productType'));
+        $sales = $query->get();
+        return view('energy_sales.index', compact('sales', 'year', 'month', 'productType'));
     }
 
     public function create()
@@ -53,9 +47,8 @@ class EnergySalesController extends Controller
             return redirect()->route('energy_sales.index')->with('error', 'Админ мэдээ нэмэх эрхгүй.');
         }
 
-        $plants   = PowerPlant::with('regType')->where('org_id', $user->org_id)->orderBy('plant_name')->get();
-        $regTypes = RegType::orderBy('type_name')->get();
-        return view('energy_sales.create', compact('plants', 'regTypes'));
+        $plants = PowerPlant::with('regType')->where('org_id', $user->org_id)->orderBy('plant_name')->get();
+        return view('energy_sales.create', compact('plants'));
     }
 
     public function store(Request $request)
@@ -95,9 +88,8 @@ class EnergySalesController extends Controller
             return redirect()->route('energy_sales.index')->with('error', 'Админ мэдээ засах эрхгүй.');
         }
 
-        $plants   = PowerPlant::with('regType')->where('org_id', $user->org_id)->orderBy('plant_name')->get();
-        $regTypes = RegType::orderBy('type_name')->get();
-        return view('energy_sales.edit', compact('energy_sale', 'plants', 'regTypes'));
+        $plants = PowerPlant::with('regType')->where('org_id', $user->org_id)->orderBy('plant_name')->get();
+        return view('energy_sales.edit', compact('energy_sale', 'plants'));
     }
 
     public function update(Request $request, EnergySale $energy_sale)

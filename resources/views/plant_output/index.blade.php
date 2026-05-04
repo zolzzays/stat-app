@@ -15,8 +15,6 @@
     'action'            => route('plant_output.index'),
     'year'              => $year,
     'month'             => $month,
-    'regTypes'          => $regTypes,
-    'regTypeId'         => $regTypeId,
     'showProductFilter' => true,
     'productType'       => $productType,
 ])
@@ -28,7 +26,6 @@
                 <th rowspan="2" class="align-middle">#</th>
                 <th rowspan="2" class="align-middle">Байгууллага</th>
                 <th rowspan="2" class="align-middle">Станц</th>
-                <th rowspan="2" class="align-middle">Бүртгэлийн төрөл</th>
                 <th rowspan="2" class="align-middle">Бүтээгдэхүүн</th>
                 <th rowspan="2" class="align-middle">Нэгж</th>
                 <th colspan="5" class="text-center">Үйлдвэрлэлийн мэдээлэл</th>
@@ -48,7 +45,6 @@
                 <td class="text-muted">{{ $i + 1 }}</td>
                 <td class="text-start">{{ $output->organization?->org_name ?? '—' }}</td>
                 <td class="text-start fw-semibold">{{ $output->powerPlant->plant_name }}</td>
-                <td class="text-start">{{ $output->powerPlant->regType?->type_name ?? '—' }}</td>
                 <td class="text-start">{{ $output->product_name }}</td>
                 <td>{{ $output->unit_name }}</td>
                 <td>{{ number_format($output->before_month, 2) }}</td>
@@ -74,14 +70,14 @@
             </tr>
             @empty
             <tr>
-                <td colspan="12" class="text-center text-muted py-4">Мэдээлэл байхгүй байна.</td>
+                <td colspan="11" class="text-center text-muted py-4">Мэдээлэл байхгүй байна.</td>
             </tr>
             @endforelse
         </tbody>
         @if($outputs->count() > 0)
         <tfoot class="table-light fw-semibold">
             <tr>
-                <td colspan="6" class="text-end">Нийт дүн:</td>
+                <td colspan="5" class="text-end">Нийт дүн:</td>
                 <td>{{ number_format($outputs->sum('before_month'), 2) }}</td>
                 <td>{{ number_format($outputs->sum('this_month'), 2) }}</td>
                 <td>{{ number_format($outputs->sum('year_usage'), 2) }}</td>

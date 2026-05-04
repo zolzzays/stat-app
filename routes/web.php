@@ -30,6 +30,7 @@ Route::middleware('web')->group(function () {
         Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
         Route::post('/profile', [ProfileController::class, 'update'])->name('profile.update');
         Route::post('/profile/password', [ProfileController::class, 'updatePassword'])->name('profile.password');
+        Route::get('/profile/users', [ProfileController::class, 'users'])->name('profile.users');
     });
 
     // Logout

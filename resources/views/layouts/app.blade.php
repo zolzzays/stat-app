@@ -174,7 +174,11 @@
             </div>
 
             <a href="{{ route('dashboard') }}">🏠 Хянах самбар</a>
-            <a href="{{ route('profile.edit') }}">👤 Миний мэдээлэл</a>
+            @if(auth()->check() && auth()->user()->role?->name === 'admin')
+                <a href="{{ route('profile.users') }}">👥 Хэрэглэгчийн мэдээлэл</a>
+            @else
+                <a href="{{ route('profile.edit') }}">👤 Миний мэдээлэл</a>
+            @endif
 
             <div class="section-title">Мэдээ</div>
             <a href="{{ route('plant_output.index') }}">⚡ Үйлдвэрлэлийн мэдээ</a>

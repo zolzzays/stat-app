@@ -4,7 +4,6 @@ namespace App\Http\Controllers;
 
 use App\Models\HrCount;
 use App\Models\PowerPlant;
-use App\Models\RegType;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use App\Exports\HrCountExport;
@@ -14,17 +13,12 @@ class HrCountController extends Controller
 {
     public function index(Request $request)
     {
-        $user      = Auth::user();
-        $year      = $request->input('year');
-        $month     = $request->input('month');
-        $regTypeId = $request->input('reg_type_id');
-        $regTypes  = RegType::orderBy('type_name')->get();
+        $user  = Auth::user();
+        $year  = $request->input('year');
+        $month = $request->input('month');
 
-        $query = HrCount::with(['powerPlant.regType', 'organization']);
+        $query = HrCount::with(['powerPlant', 'organization']);
 
-        if ($regTypeId) {
-            $query->whereHas('powerPlant', fn($q) => $q->where('reg_type_id', $regTypeId));
-        }
         if ($year)  $query->where('year', $year);
         if ($month) $query->where('month', $month);
 
@@ -34,7 +28,7 @@ class HrCountController extends Controller
                 return Excel::download(new HrCountExport($year, $month), $filename);
             }
             $rows = $query->get();
-            return view('hr_count.admin_index', compact('rows', 'year', 'month', 'regTypes', 'regTypeId'));
+            return view('hr_count.admin_index', compact('rows', 'year', 'month'));
         }
 
         if ($user->org_id) {
@@ -45,7 +39,7 @@ class HrCountController extends Controller
             return Excel::download(new HrCountExport($year, $month, null, $user->org_id), $filename);
         }
         $rows = $query->get();
-        return view('hr_count.index', compact('rows', 'year', 'month', 'regTypes', 'regTypeId'));
+        return view('hr_count.index', compact('rows', 'year', 'month'));
     }
 
     public function create()

@@ -4,7 +4,6 @@ namespace App\Http\Controllers;
 
 use App\Models\PlantOutput;
 use App\Models\PowerPlant;
-use App\Models\RegType;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use App\Exports\PlantOutputExport;
@@ -17,16 +16,12 @@ class PlantOutputController extends Controller
         $user        = Auth::user();
         $year        = $request->input('year');
         $month       = $request->input('month');
-        $regTypeId   = $request->input('reg_type_id');
         $productType = $request->input('product_type');
 
-        $query = PlantOutput::with(['powerPlant.regType', 'organization']);
+        $query = PlantOutput::with(['powerPlant', 'organization']);
 
         if ($user?->role?->name !== 'admin' && $user?->org_id) {
             $query->whereHas('powerPlant', fn($q) => $q->where('org_id', $user->org_id));
-        }
-        if ($regTypeId) {
-            $query->whereHas('powerPlant', fn($q) => $q->where('reg_type_id', $regTypeId));
         }
         if ($year)        $query->where('year', $year);
         if ($month)       $query->where('month', $month);
@@ -40,9 +35,8 @@ class PlantOutputController extends Controller
             );
         }
 
-        $regTypes = RegType::orderBy('type_name')->get();
-        $outputs  = $query->get();
-        return view('plant_output.index', compact('outputs', 'year', 'month', 'regTypes', 'regTypeId', 'productType'));
+        $outputs = $query->get();
+        return view('plant_output.index', compact('outputs', 'year', 'month', 'productType'));
     }
 
     public function create()
@@ -51,9 +45,8 @@ class PlantOutputController extends Controller
         if ($user->role?->name === 'admin') {
             return redirect()->route('plant_output.index')->with('error', 'Админ мэдээ нэмэх эрхгүй.');
         }
-        $plants   = PowerPlant::with('regType')->where('org_id', $user->org_id)->orderBy('plant_name')->get();
-        $regTypes = RegType::orderBy('type_name')->get();
-        return view('plant_output.create', compact('plants', 'regTypes'));
+        $plants = PowerPlant::with('regType')->where('org_id', $user->org_id)->orderBy('plant_name')->get();
+        return view('plant_output.create', compact('plants'));
     }
 
     public function store(Request $request)
@@ -87,9 +80,8 @@ class PlantOutputController extends Controller
             return redirect()->route('plant_output.index')->with('error', 'Админ мэдээ засах эрхгүй.');
         }
         $user     = Auth::user();
-        $plants   = PowerPlant::with('regType')->where('org_id', $user->org_id)->orderBy('plant_name')->get();
-        $regTypes = RegType::orderBy('type_name')->get();
-        return view('plant_output.edit', compact('plant_output', 'plants', 'regTypes'));
+        $plants = PowerPlant::with('regType')->where('org_id', $user->org_id)->orderBy('plant_name')->get();
+        return view('plant_output.edit', compact('plant_output', 'plants'));
     }
 
     public function update(Request $request, PlantOutput $plant_output)

@@ -5,12 +5,19 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
+use App\Models\User;
 
 class ProfileController extends Controller
 {
     public function edit()
     {
         return view('profile.edit', ['user' => Auth::user()]);
+    }
+
+    public function users()
+    {
+        $users = User::with(['organization', 'powerPlant'])->orderBy('name')->get();
+        return view('profile.users', compact('users'));
     }
 
     public function update(Request $request)
