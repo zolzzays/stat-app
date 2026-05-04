@@ -18,8 +18,8 @@
                 <th rowspan="2" class="align-middle">#</th>
                 <th rowspan="2" class="align-middle">Байгууллага</th>
                 <th rowspan="2" class="align-middle">Станц</th>
-                <th colspan="3" class="text-center">Нийт ажиллагчид</th>
                 <th colspan="3" class="text-center">Нийт ажилчид</th>
+                <th colspan="3" class="text-center">Нийт ИТА</th>
                 <th rowspan="2" class="align-middle">Үйлдэл</th>
             </tr>
             <tr>

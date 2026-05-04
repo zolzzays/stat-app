@@ -71,7 +71,7 @@
         <div class="card-body">
             <div class="row g-3">
 
-                <div class="col-12"><p class="fw-semibold mb-1 text-muted">Нийт ажиллагчид</p></div>
+                <div class="col-12"><p class="fw-semibold mb-1 text-muted">Нийт ажилчид</p></div>
 
                 <div class="col-md-3">
                     <label class="form-label">Эрэгтэй <span class="text-danger">*</span></label>
@@ -85,7 +85,7 @@
                            value="{{ old('emp_female', 0) }}" min="0" required>
                 </div>
 
-                <div class="col-12 mt-2"><p class="fw-semibold mb-1 text-muted">Нийт ажилчид</p></div>
+                <div class="col-12 mt-2"><p class="fw-semibold mb-1 text-muted">Нийт ИТА</p></div>
 
                 <div class="col-md-3">
                     <label class="form-label">Эрэгтэй <span class="text-danger">*</span></label>

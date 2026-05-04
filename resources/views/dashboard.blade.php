@@ -135,7 +135,7 @@
             </div>
             <div class="card-body px-3 py-2" style="font-size:0.83rem;">
                 <div class="mb-2">
-                    <div class="text-muted small fw-semibold mb-1">Нийт ажиллагчид</div>
+                    <div class="text-muted small fw-semibold mb-1">Нийт ажилчид</div>
                     <div class="d-flex justify-content-between">
                         <span>Эрэгтэй</span><span class="fw-semibold">{{ $hr->emp_male }}</span>
                     </div>
@@ -148,7 +148,7 @@
                     </div>
                 </div>
                 <div>
-                    <div class="text-muted small fw-semibold mb-1">Нийт ажилчид</div>
+                    <div class="text-muted small fw-semibold mb-1">Нийт ИТА</div>
                     <div class="d-flex justify-content-between">
                         <span>Эрэгтэй</span><span class="fw-semibold">{{ $hr->work_male }}</span>
                     </div>

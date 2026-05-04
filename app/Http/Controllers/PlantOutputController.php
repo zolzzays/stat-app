@@ -23,6 +23,11 @@ class PlantOutputController extends Controller
         if ($user?->role?->name !== 'admin' && $user?->org_id) {
             $query->whereHas('powerPlant', fn($q) => $q->where('org_id', $user->org_id));
         }
+        if ($user?->role?->name === 'admin') {
+            $query->join('organizations', 'plant_output.org_id', '=', 'organizations.id')
+                  ->orderBy('organizations.org_code')
+                  ->select('plant_output.*');
+        }
         if ($year)        $query->where('year', $year);
         if ($month)       $query->where('month', $month);
         if ($productType) $query->where('product_name', 'like', '%' . $productType . '%');

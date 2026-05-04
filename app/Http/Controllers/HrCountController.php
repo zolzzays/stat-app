@@ -27,7 +27,10 @@ class HrCountController extends Controller
                 $filename = 'hr_count_' . ($year ?: 'all') . '_' . ($month ?: 'all') . '.xlsx';
                 return Excel::download(new HrCountExport($year, $month), $filename);
             }
-            $rows = $query->get();
+            $rows = $query->join('organizations', 'hr_count.org_id', '=', 'organizations.id')
+                          ->orderBy('organizations.org_code')
+                          ->select('hr_count.*')
+                          ->get();
             return view('hr_count.admin_index', compact('rows', 'year', 'month'));
         }
 
