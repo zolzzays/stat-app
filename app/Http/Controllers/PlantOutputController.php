@@ -20,8 +20,8 @@ class PlantOutputController extends Controller
 
         $query = PlantOutput::with(['powerPlant', 'organization']);
 
-        if ($user?->role?->name !== 'admin' && $user?->org_id) {
-            $query->whereHas('powerPlant', fn($q) => $q->where('org_id', $user->org_id));
+        if ($user?->role?->name !== 'admin') {
+            $query->where('org_id', $user->org_id);
         }
         if ($user?->role?->name === 'admin') {
             $query->join('organizations', 'plant_output.org_id', '=', 'organizations.id')
@@ -56,7 +56,8 @@ class PlantOutputController extends Controller
 
     public function store(Request $request)
     {
-        if (Auth::user()->role?->name === 'admin') {
+        $user = Auth::user();
+        if ($user->role?->name === 'admin') {
             return redirect()->route('plant_output.index')->with('error', 'Админ мэдээ нэмэх эрхгүй.');
         }
         $request->validate([
@@ -72,8 +73,11 @@ class PlantOutputController extends Controller
         ]);
 
         $plant = PowerPlant::find($request->power_plant_id);
-        $data  = $request->all();
-        $data['org_id'] = $plant?->org_id;
+        if (!$plant || $plant->org_id !== $user->org_id) {
+            return redirect()->back()->with('error', 'Зөвшөөрөлгүй үйлдэл.');
+        }
+        $data           = $request->all();
+        $data['org_id'] = $plant->org_id;
 
         PlantOutput::create($data);
         return redirect()->route('plant_output.index')->with('success', 'Амжилттай нэмэгдлээ.');
@@ -81,18 +85,25 @@ class PlantOutputController extends Controller
 
     public function edit(PlantOutput $plant_output)
     {
-        if (Auth::user()->role?->name === 'admin') {
+        $user = Auth::user();
+        if ($user->role?->name === 'admin') {
             return redirect()->route('plant_output.index')->with('error', 'Админ мэдээ засах эрхгүй.');
         }
-        $user     = Auth::user();
+        if ($plant_output->org_id !== $user->org_id) {
+            return redirect()->route('plant_output.index')->with('error', 'Зөвшөөрөлгүй үйлдэл.');
+        }
         $plants = PowerPlant::with('regType')->where('org_id', $user->org_id)->orderBy('plant_name')->get();
         return view('plant_output.edit', compact('plant_output', 'plants'));
     }
 
     public function update(Request $request, PlantOutput $plant_output)
     {
-        if (Auth::user()->role?->name === 'admin') {
+        $user = Auth::user();
+        if ($user->role?->name === 'admin') {
             return redirect()->route('plant_output.index')->with('error', 'Админ мэдээ засах эрхгүй.');
+        }
+        if ($plant_output->org_id !== $user->org_id) {
+            return redirect()->route('plant_output.index')->with('error', 'Зөвшөөрөлгүй үйлдэл.');
         }
         $request->validate([
             'power_plant_id' => 'required|exists:power_plants,id',
@@ -107,8 +118,11 @@ class PlantOutputController extends Controller
         ]);
 
         $plant = PowerPlant::find($request->power_plant_id);
-        $data  = $request->all();
-        $data['org_id'] = $plant?->org_id;
+        if (!$plant || $plant->org_id !== $user->org_id) {
+            return redirect()->back()->with('error', 'Зөвшөөрөлгүй үйлдэл.');
+        }
+        $data           = $request->all();
+        $data['org_id'] = $plant->org_id;
 
         $plant_output->update($data);
         return redirect()->route('plant_output.index')->with('success', 'Амжилттай шинэчлэгдлээ.');
@@ -116,8 +130,12 @@ class PlantOutputController extends Controller
 
     public function destroy(PlantOutput $plant_output)
     {
-        if (Auth::user()->role?->name === 'admin') {
+        $user = Auth::user();
+        if ($user->role?->name === 'admin') {
             return redirect()->route('plant_output.index')->with('error', 'Админ мэдээ устгах эрхгүй.');
+        }
+        if ($plant_output->org_id !== $user->org_id) {
+            return redirect()->route('plant_output.index')->with('error', 'Зөвшөөрөлгүй үйлдэл.');
         }
         $plant_output->delete();
         return redirect()->route('plant_output.index')->with('success', 'Амжилттай устгалаа.');

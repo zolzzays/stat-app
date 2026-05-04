@@ -81,34 +81,34 @@ class AuthController extends Controller
             ];
         }
 
-        // User: өөрийн станцын мэдээнүүд
+        // User: өөрийн байгууллагын мэдээнүүд
         $userStats = null;
-        if ($user->role?->name !== 'admin' && $user->power_plant_id) {
-            $plantId = $user->power_plant_id;
+        if ($user->role?->name !== 'admin' && $user->org_id) {
+            $orgId = $user->org_id;
 
-            $hrRecords = HrCount::where('power_plant_id', $plantId)
+            $hrRecords = HrCount::where('org_id', $orgId)
                 ->orderBy('year')->orderBy('month')->get();
 
             $outputRecords = PlantOutput::with('powerPlant')
-                ->where('power_plant_id', $plantId)
+                ->where('org_id', $orgId)
                 ->orderBy('year')->orderBy('month')->get();
 
             $salesRecords = EnergySale::with('powerPlant')
-                ->where('power_plant_id', $plantId)
+                ->where('org_id', $orgId)
                 ->orderBy('year')->orderBy('month')->get();
 
             // Анхааруулга: тухайн сарын 5-ны дотор өмнөх сарын мэдээ оруулах
-            $deadline     = $currentDay = (int) date('j');
-            $showWarning  = $currentDay <= 5;
-            $warnMonth    = $prevMonth;
-            $warnYear     = $prevYear;
+            $currentDay  = (int) date('j');
+            $showWarning = $currentDay <= 5;
+            $warnMonth   = $prevMonth;
+            $warnYear    = $prevYear;
 
             // Өмнөх сарын мэдээ бүртгэгдсэн эсэх
-            $hasOutput = PlantOutput::where('power_plant_id', $plantId)
+            $hasOutput = PlantOutput::where('org_id', $orgId)
                 ->where('year', $prevYear)->where('month', $prevMonth)->exists();
-            $hasSales  = EnergySale::where('power_plant_id', $plantId)
+            $hasSales  = EnergySale::where('org_id', $orgId)
                 ->where('year', $prevYear)->where('month', $prevMonth)->exists();
-            $hasHr     = HrCount::where('power_plant_id', $plantId)
+            $hasHr     = HrCount::where('org_id', $orgId)
                 ->where('year', $prevYear)->where('month', $prevMonth)->exists();
 
             $userStats = compact(

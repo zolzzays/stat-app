@@ -16,7 +16,12 @@ class ProfileController extends Controller
 
     public function users()
     {
-        $users = User::with(['organization', 'powerPlant'])->orderBy('name')->get();
+        $users = User::with(['organization', 'powerPlant'])
+            ->leftJoin('organizations', 'users.org_id', '=', 'organizations.id')
+            ->orderBy('organizations.org_code')
+            ->orderBy('users.name')
+            ->select('users.*')
+            ->get();
         return view('profile.users', compact('users'));
     }
 

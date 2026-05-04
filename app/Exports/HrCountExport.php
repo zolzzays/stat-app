@@ -14,12 +14,14 @@ class HrCountExport implements FromCollection, WithHeadings, WithMapping, WithSt
     protected $year;
     protected $month;
     protected $powerPlantId;
+    protected $orgId;
 
-    public function __construct($year, $month, $powerPlantId = null)
+    public function __construct($year, $month, $powerPlantId = null, $orgId = null)
     {
         $this->year         = $year;
         $this->month        = $month;
         $this->powerPlantId = $powerPlantId;
+        $this->orgId        = $orgId;
     }
 
     public function collection()
@@ -27,7 +29,8 @@ class HrCountExport implements FromCollection, WithHeadings, WithMapping, WithSt
         $query = HrCount::with(['powerPlant', 'organization'])
             ->when($this->year, fn($q) => $q->where('year', $this->year))
             ->when($this->month, fn($q) => $q->where('month', $this->month))
-            ->when($this->powerPlantId, fn($q) => $q->where('power_plant_id', $this->powerPlantId));
+            ->when($this->powerPlantId, fn($q) => $q->where('power_plant_id', $this->powerPlantId))
+            ->when($this->orgId, fn($q) => $q->where('org_id', $this->orgId));
 
         return $query->get();
     }

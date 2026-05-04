@@ -20,8 +20,8 @@ class EnergySalesController extends Controller
 
         $query = EnergySale::with(['powerPlant', 'organization']);
 
-        if ($user?->role?->name !== 'admin' && $user?->org_id) {
-            $query->whereHas('powerPlant', fn($q) => $q->where('org_id', $user->org_id));
+        if ($user?->role?->name !== 'admin') {
+            $query->where('org_id', $user->org_id);
         }
         if ($user?->role?->name === 'admin') {
             $query->join('organizations', 'energy_sales.org_id', '=', 'organizations.id')
@@ -58,7 +58,8 @@ class EnergySalesController extends Controller
 
     public function store(Request $request)
     {
-        if (Auth::user()->role?->name === 'admin') {
+        $user = Auth::user();
+        if ($user->role?->name === 'admin') {
             return redirect()->route('energy_sales.index')->with('error', 'Админ мэдээ нэмэх эрхгүй.');
         }
         $request->validate([
@@ -78,8 +79,11 @@ class EnergySalesController extends Controller
         ]);
 
         $plant = PowerPlant::find($request->power_plant_id);
-        $data  = $request->all();
-        $data['org_id'] = $plant?->org_id;
+        if (!$plant || $plant->org_id !== $user->org_id) {
+            return redirect()->back()->with('error', 'Зөвшөөрөлгүй үйлдэл.');
+        }
+        $data           = $request->all();
+        $data['org_id'] = $plant->org_id;
 
         EnergySale::create($data);
         return redirect()->route('energy_sales.index')->with('success', 'Борлуулалтын мэдээ амжилттай нэмэгдлээ.');
@@ -92,6 +96,9 @@ class EnergySalesController extends Controller
         if ($user->role?->name === 'admin') {
             return redirect()->route('energy_sales.index')->with('error', 'Админ мэдээ засах эрхгүй.');
         }
+        if ($energy_sale->org_id !== $user->org_id) {
+            return redirect()->route('energy_sales.index')->with('error', 'Зөвшөөрөлгүй үйлдэл.');
+        }
 
         $plants = PowerPlant::with('regType')->where('org_id', $user->org_id)->orderBy('plant_name')->get();
         return view('energy_sales.edit', compact('energy_sale', 'plants'));
@@ -99,8 +106,12 @@ class EnergySalesController extends Controller
 
     public function update(Request $request, EnergySale $energy_sale)
     {
-        if (Auth::user()->role?->name === 'admin') {
+        $user = Auth::user();
+        if ($user->role?->name === 'admin') {
             return redirect()->route('energy_sales.index')->with('error', 'Админ мэдээ засах эрхгүй.');
+        }
+        if ($energy_sale->org_id !== $user->org_id) {
+            return redirect()->route('energy_sales.index')->with('error', 'Зөвшөөрөлгүй үйлдэл.');
         }
         $request->validate([
             'power_plant_id' => 'required|exists:power_plants,id',
@@ -119,8 +130,11 @@ class EnergySalesController extends Controller
         ]);
 
         $plant = PowerPlant::find($request->power_plant_id);
-        $data  = $request->all();
-        $data['org_id'] = $plant?->org_id;
+        if (!$plant || $plant->org_id !== $user->org_id) {
+            return redirect()->back()->with('error', 'Зөвшөөрөлгүй үйлдэл.');
+        }
+        $data           = $request->all();
+        $data['org_id'] = $plant->org_id;
 
         $energy_sale->update($data);
         return redirect()->route('energy_sales.index')->with('success', 'Борлуулалтын мэдээ амжилттай шинэчлэгдлээ.');
@@ -128,8 +142,12 @@ class EnergySalesController extends Controller
 
     public function destroy(EnergySale $energy_sale)
     {
-        if (Auth::user()->role?->name === 'admin') {
+        $user = Auth::user();
+        if ($user->role?->name === 'admin') {
             return redirect()->route('energy_sales.index')->with('error', 'Админ мэдээ устгах эрхгүй.');
+        }
+        if ($energy_sale->org_id !== $user->org_id) {
+            return redirect()->route('energy_sales.index')->with('error', 'Зөвшөөрөлгүй үйлдэл.');
         }
 
         $energy_sale->delete();

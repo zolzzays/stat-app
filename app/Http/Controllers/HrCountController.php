@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\HrCount;
 use App\Models\PowerPlant;
+use App\Models\RegType;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use App\Exports\HrCountExport;
@@ -34,9 +35,7 @@ class HrCountController extends Controller
             return view('hr_count.admin_index', compact('rows', 'year', 'month'));
         }
 
-        if ($user->org_id) {
-            $query->whereHas('powerPlant', fn($q) => $q->where('org_id', $user->org_id));
-        }
+        $query->where('org_id', $user->org_id);
         if ($request->input('export') === 'excel') {
             $filename = 'hr_count_' . ($year ?: 'all') . '_' . ($month ?: 'all') . '.xlsx';
             return Excel::download(new HrCountExport($year, $month, null, $user->org_id), $filename);
@@ -77,8 +76,11 @@ class HrCountController extends Controller
         ]);
 
         $plant = PowerPlant::find($request->power_plant_id);
-        $data  = $request->all();
-        $data['org_id'] = $plant?->org_id;
+        if (!$plant || $plant->org_id !== $user->org_id) {
+            return redirect()->back()->with('error', 'Зөвшөөрөлгүй үйлдэл.');
+        }
+        $data           = $request->all();
+        $data['org_id'] = $plant->org_id;
 
         HrCount::create($data);
         return redirect()->route('hr_count.index')->with('success', 'Хүний нөөцийн мэдээ амжилттай нэмэгдлээ.');
@@ -90,6 +92,9 @@ class HrCountController extends Controller
 
         if ($user->role?->name === 'admin') {
             return redirect()->route('hr_count.index')->with('error', 'Админ мэдээ засах эрхгүй.');
+        }
+        if ($hr_count->org_id !== $user->org_id) {
+            return redirect()->route('hr_count.index')->with('error', 'Зөвшөөрөлгүй үйлдэл.');
         }
 
         $plants   = PowerPlant::with('regType')->where('org_id', $user->org_id)->orderBy('plant_name')->get();
@@ -103,6 +108,9 @@ class HrCountController extends Controller
 
         if ($user->role?->name === 'admin') {
             return redirect()->route('hr_count.index')->with('error', 'Админ мэдээ засах эрхгүй.');
+        }
+        if ($hr_count->org_id !== $user->org_id) {
+            return redirect()->route('hr_count.index')->with('error', 'Зөвшөөрөлгүй үйлдэл.');
         }
 
         $request->validate([
@@ -129,6 +137,9 @@ class HrCountController extends Controller
 
         if ($user->role?->name === 'admin') {
             return redirect()->route('hr_count.index')->with('error', 'Админ мэдээ устгах эрхгүй.');
+        }
+        if ($hr_count->org_id !== $user->org_id) {
+            return redirect()->route('hr_count.index')->with('error', 'Зөвшөөрөлгүй үйлдэл.');
         }
 
         $hr_count->delete();
