@@ -18,23 +18,22 @@ class HrCountController extends Controller
         $year  = $request->input('year');
         $month = $request->input('month');
 
-        $query = HrCount::with(['powerPlant', 'organization']);
-
-        if ($year)  $query->where('year', $year);
-        if ($month) $query->where('month', $month);
-
         if ($user->role?->name === 'admin') {
             if ($request->input('export') === 'excel') {
                 $filename = 'hr_count_' . ($year ?: 'all') . '_' . ($month ?: 'all') . '.xlsx';
                 return Excel::download(new HrCountExport($year, $month), $filename);
             }
-            $rows = $query->join('organizations', 'hr_count.org_id', '=', 'organizations.id')
-                          ->orderBy('organizations.org_code')
-                          ->select('hr_count.*')
-                          ->get();
+            $rows = HrCount::with(['powerPlant', 'organization'])
+                ->when($year,  fn($q) => $q->where('year', $year))
+                ->when($month, fn($q) => $q->where('month', $month))
+                ->orderBy('org_id')
+                ->get();
             return view('hr_count.admin_index', compact('rows', 'year', 'month'));
         }
 
+        $query = HrCount::with(['powerPlant', 'organization']);
+        if ($year)  $query->where('year', $year);
+        if ($month) $query->where('month', $month);
         $query->where('org_id', $user->org_id);
         if ($request->input('export') === 'excel') {
             $filename = 'hr_count_' . ($year ?: 'all') . '_' . ($month ?: 'all') . '.xlsx';
