@@ -41,7 +41,7 @@ class AuthController extends Controller
     }
 
     // Dashboard view
-    public function dashboard()
+    public function dashboard(Request $request)
     {
         $user        = Auth::user();
         $currentYear  = (int) date('Y');
@@ -86,16 +86,56 @@ class AuthController extends Controller
         if ($user->role?->name !== 'admin' && $user->org_id) {
             $orgId = $user->org_id;
 
-            $hrRecords = HrCount::where('org_id', $orgId)
+            $hrAll = HrCount::where('org_id', $orgId)
                 ->orderBy('year')->orderBy('month')->get();
 
-            $outputRecords = PlantOutput::with('powerPlant')
+            $outputAll = PlantOutput::with('powerPlant')
                 ->where('org_id', $orgId)
                 ->orderBy('year')->orderBy('month')->get();
 
-            $salesRecords = EnergySale::with('powerPlant')
+            $salesAll = EnergySale::with('powerPlant')
                 ->where('org_id', $orgId)
                 ->orderBy('year')->orderBy('month')->get();
+
+            // Сар бүрийн түлхүүр: "2026-03"
+            $periodKey = fn ($r) => sprintf('%04d-%02d', (int) $r->year, (int) $r->month);
+
+            // Бүх мэдээнээс сарын жагсаалт (шинэ нь эхэнд)
+            $allRecords = collect()->merge($hrAll)->merge($outputAll)->merge($salesAll);
+            $periods = $allRecords
+                ->map(fn ($r) => ['key' => $periodKey($r), 'year' => (int) $r->year, 'month' => (int) $r->month])
+                ->unique('key')
+                ->sortByDesc('key')
+                ->values()
+                ->map(fn ($p) => $p + ['label' => "{$p['year']} он {$p['month']} сар"]);
+
+            // Хамгийн сүүлд оруулсан мэдээ (created_at-аар) → тэр мэдээний сар
+            $latestRecord = $allRecords->sortByDesc('created_at')->first();
+            $latestKey    = $latestRecord ? $periodKey($latestRecord) : null;
+            $latestLabel  = $periods->firstWhere('key', $latestKey)['label'] ?? null;
+
+            // Шүүлтүүр: ?period=2026-03 эсвэл ?period=all. Үгүй бол сүүлд оруулсан сар.
+            $requested = $request->query('period');
+            if ($requested === 'all' || $periods->contains('key', $requested)) {
+                $selectedPeriod = $requested;
+            } else {
+                $selectedPeriod = $latestKey ?? 'all';
+            }
+
+            $filterByPeriod = fn ($items) => $selectedPeriod === 'all'
+                ? $items
+                : $items->filter(fn ($r) => $periodKey($r) === $selectedPeriod)->values();
+
+            // Хүний нөөцийн хамгийн сүүлийн сарын мэдээний тоо (нийлбэр биш)
+            $hrLastRecord = $hrAll->last();
+            $hrLatest = $hrLastRecord ? [
+                'label' => "{$hrLastRecord->year} он {$hrLastRecord->month} сар",
+                'count' => $hrAll->filter(fn ($r) => $periodKey($r) === $periodKey($hrLastRecord))->count(),
+            ] : null;
+
+            $hrRecords     = $filterByPeriod($hrAll);
+            $outputRecords = $filterByPeriod($outputAll);
+            $salesRecords  = $filterByPeriod($salesAll);
 
             // Анхааруулга: тухайн сарын 5-ны дотор өмнөх сарын мэдээ оруулах
             $currentDay  = (int) date('j');
@@ -114,7 +154,8 @@ class AuthController extends Controller
             $userStats = compact(
                 'hrRecords', 'outputRecords', 'salesRecords',
                 'showWarning', 'warnMonth', 'warnYear',
-                'hasOutput', 'hasSales', 'hasHr', 'currentDay'
+                'hasOutput', 'hasSales', 'hasHr', 'currentDay',
+                'periods', 'selectedPeriod', 'latestKey', 'latestLabel', 'hrLatest'
             );
         }
 

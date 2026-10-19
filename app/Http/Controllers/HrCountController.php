@@ -40,7 +40,15 @@ class HrCountController extends Controller
             return Excel::download(new HrCountExport($year, $month, null, $user->org_id), $filename);
         }
         $rows = $query->get();
-        return view('hr_count.index', compact('rows', 'year', 'month'));
+
+        // Хамгийн сүүлийн сарын мэдээний тоо (нийт дүнд нийлбэр биш харуулна)
+        $latest      = $rows->sortByDesc(fn ($r) => $r->year * 100 + $r->month)->first();
+        $latestLabel = $latest ? "{$latest->year} он {$latest->month} сар" : null;
+        $latestCount = $latest
+            ? $rows->where('year', $latest->year)->where('month', $latest->month)->count()
+            : 0;
+
+        return view('hr_count.index', compact('rows', 'year', 'month', 'latestLabel', 'latestCount'));
     }
 
     public function create()

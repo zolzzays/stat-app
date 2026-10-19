@@ -35,7 +35,7 @@ class EnergySalesController extends Controller
         if ($request->input('export') === 'excel') {
             $filename = 'energy_sales_' . ($year ?: 'all') . '_' . ($month ?: 'all') . '.xlsx';
             return Excel::download(
-                new EnergySalesExport($year, $month, $user?->role?->name !== 'admin' ? $user?->org_id : null),
+                new EnergySalesExport($year, $month, $user?->role?->name !== 'admin' ? $user?->org_id : null, $productType),
                 $filename
             );
         }

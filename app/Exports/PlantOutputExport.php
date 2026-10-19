@@ -13,21 +13,24 @@ class PlantOutputExport implements FromCollection, WithHeadings, WithMapping, Wi
 {
     protected $year;
     protected $month;
-    protected $powerPlantId;
+    protected $orgId;
+    protected $productType;
 
-    public function __construct($year, $month, $powerPlantId = null)
+    public function __construct($year, $month, $orgId = null, $productType = null)
     {
-        $this->year         = $year;
-        $this->month        = $month;
-        $this->powerPlantId = $powerPlantId;
+        $this->year        = $year;
+        $this->month       = $month;
+        $this->orgId       = $orgId;
+        $this->productType = $productType;
     }
 
     public function collection()
     {
         $query = PlantOutput::with(['powerPlant', 'organization'])
-            ->when($this->year, fn($q) => $q->where('year', $this->year))
-            ->when($this->month, fn($q) => $q->where('month', $this->month))
-            ->when($this->powerPlantId, fn($q) => $q->where('power_plant_id', $this->powerPlantId));
+            ->when($this->year,        fn($q) => $q->where('year', $this->year))
+            ->when($this->month,       fn($q) => $q->where('month', $this->month))
+            ->when($this->orgId,       fn($q) => $q->where('org_id', $this->orgId))
+            ->when($this->productType, fn($q) => $q->where('product_name', 'like', '%' . $this->productType . '%'));
 
         return $query->get();
     }

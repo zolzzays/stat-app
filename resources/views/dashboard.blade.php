@@ -119,6 +119,22 @@
 </div>
 @endif
 
+{{-- ── Сараар шүүлтүүр ── --}}
+<form method="GET" action="{{ route('dashboard') }}" class="card shadow-sm border-0 mb-4">
+    <div class="card-body py-2 px-3 d-flex flex-wrap align-items-center gap-2">
+        <label for="period" class="fw-semibold small mb-0">📅 Сар сонгох:</label>
+        <select name="period" id="period" class="form-select form-select-sm w-auto" onchange="this.form.submit()">
+            <option value="all" @selected($userStats['selectedPeriod'] === 'all')>Бүх сар</option>
+            @foreach($userStats['periods'] as $p)
+            <option value="{{ $p['key'] }}" @selected($userStats['selectedPeriod'] === $p['key'])>{{ $p['label'] }}</option>
+            @endforeach
+        </select>
+        @if($userStats['latestLabel'])
+        <span class="small text-muted">Сүүлд оруулсан мэдээ: <strong>{{ $userStats['latestLabel'] }}</strong></span>
+        @endif
+    </div>
+</form>
+
 {{-- ── Хүний нөөцийн мэдээ ── --}}
 <h5 class="fw-bold mb-3 mt-2">👥 Хүний нөөцийн мэдээ</h5>
 @if($userStats['hrRecords']->count() > 0)
@@ -165,6 +181,22 @@
     </div>
     @endforeach
 </div>
+{{-- Бүх сар харах үед: хамгийн сүүлийн сарын дүн (нийлбэр биш) --}}
+@if($userStats['selectedPeriod'] === 'all' && $userStats['hrLatest'])
+<div class="card shadow-sm border-0 mb-4" style="border-top: 3px solid #1a4fa0 !important; max-width: 420px;">
+    <div class="card-header py-2 px-3 d-flex justify-content-between align-items-center"
+         style="background:#eef3fb; border-bottom:1px solid #d0ddf5;">
+        <span class="fw-bold text-primary" style="font-size:0.9rem;">
+            Нийт дүн — {{ $userStats['hrLatest']['label'] }}
+        </span>
+        <span class="badge" style="background:#1a4fa0; font-size:0.7rem;">Хамгийн сүүлийн сар</span>
+    </div>
+    <div class="card-body px-3 py-2 d-flex justify-content-between align-items-center" style="font-size:0.83rem;">
+        <span class="text-muted">Мэдээний тоо</span>
+        <span class="fw-bold text-primary fs-5">{{ $userStats['hrLatest']['count'] }}</span>
+    </div>
+</div>
+@endif
 @else
 <p class="text-muted mb-4">Хүний нөөцийн мэдээ байхгүй байна.</p>
 @endif

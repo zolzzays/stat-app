@@ -35,7 +35,7 @@ class PlantOutputController extends Controller
         if ($request->input('export') === 'excel') {
             $filename = 'plant_output_' . ($year ?: 'all') . '_' . ($month ?: 'all') . '.xlsx';
             return Excel::download(
-                new PlantOutputExport($year, $month, $user?->role?->name !== 'admin' ? $user?->org_id : null),
+                new PlantOutputExport($year, $month, $user?->role?->name !== 'admin' ? $user?->org_id : null, $productType),
                 $filename
             );
         }

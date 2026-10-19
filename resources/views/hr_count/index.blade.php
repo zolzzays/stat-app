@@ -64,14 +64,8 @@
         @if($rows->count() > 0)
         <tfoot class="table-light fw-semibold">
             <tr>
-                <td colspan="3" class="text-end">Нийт дүн:</td>
-                <td>{{ $rows->sum('emp_male') }}</td>
-                <td>{{ $rows->sum('emp_female') }}</td>
-                <td>{{ $rows->sum('emp_male') + $rows->sum('emp_female') }}</td>
-                <td>{{ $rows->sum('work_male') }}</td>
-                <td>{{ $rows->sum('work_female') }}</td>
-                <td>{{ $rows->sum('work_male') + $rows->sum('work_female') }}</td>
-                <td></td>
+                <td colspan="3" class="text-end">Сүүлийн сар ({{ $latestLabel }}) — мэдээний тоо:</td>
+                <td colspan="7" class="text-center">{{ $latestCount }}</td>
             </tr>
         </tfoot>
         @endif

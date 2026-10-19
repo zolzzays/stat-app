@@ -23,3 +23,9 @@
 Homestead.json
 Homestead.yaml
 Thumbs.db
+
+disnews_db.sql
+storage/framework/lsp-*.php
+
+disnews_db.sql
+storage/framework/lsp-*.php
